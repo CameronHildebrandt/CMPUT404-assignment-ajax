@@ -81,9 +81,17 @@ def hello():
 
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
-    myWorld.update(str(request.json["usrNum"]), entity, request.json["data"])
+    userNumber = 0
+    data = request.json
+    try:
+        userNumber = request.json["usrNum"]
+        data = request.json["data"]
+    except:
+        pass
+        
+    myWorld.update(str(userNumber), entity, data)
 
-    res = {}
+    res = {"entity": myWorld.get(entity)}
     return jsonify(res), 200, {'Content-Type': 'application/json'}
 
 
@@ -97,7 +105,9 @@ def world():
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-    return None
+    print("yeet")
+    res = {"entity": myWorld.get(entity)}
+    return jsonify(res), 200, {'Content-Type': 'application/json'}
 
 
 
@@ -113,3 +123,4 @@ def clear():
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
+    # app.run(host="172.31.104.111", port=8000) # connect using other computers on network

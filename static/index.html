@@ -39,9 +39,7 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
         if (xhr.readyState==4) {
             try {
                 if (xhr.status==200) {
-                    //XXX: parse some JSON from the request!
-                    //XXX: Pass the data to the callback!
-                    console.log("here");
+                    callback(JSON.parse(xhr.responseText))
                 }
             } 
             catch(e) {
@@ -51,12 +49,7 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
     };
 
 
-    //XXX: POST to a URL
-    //XXX: set the mimetype and the accept headers!
-    // Remember to use application/json !
-
     params = JSON.stringify(objects)
-
     xhr.open('POST', url, true);
 
     // Send the proper header information along with the request
@@ -79,7 +72,6 @@ world = {};
 otherUsersWorlds = {};
 
 //XXX: TODO Make this prettier!
-// will be made prettier by making it draw gradient - reset on click, increment colour as draw
 function drawCircle(context,entity) {
     with(context) {
         beginPath();              
@@ -116,30 +108,20 @@ function clearFrame() {
 // This actually draws the frame
 function renderFrame() {
     clearFrame();
-    // for (var w in otherUsersWorlds) {
-    //     for (var key in w) {
-    //         var entity = w[key];
-    //         drawCircle(context,prepEntity(entity));
-    //     }
-    // }
-
-    clearFrame();
     for (var key in world) {
         var entity = world[key];
         drawCircle(context,prepEntity(entity));
     }
     
-    // console.log('================================');
     for (var w in otherUsersWorlds) {
         if(w.toString() !== usrNum.toString()) {
-            console.log(otherUsersWorlds[w])
+            // console.log(otherUsersWorlds[w])
             for (var key in otherUsersWorlds[w]) {
                 var entity = otherUsersWorlds[w][key];
                 drawCircle(context,prepEntity(entity));
             }
         }
     }
-    // console.log('================================');
 }
 
 var drawNext = true;
