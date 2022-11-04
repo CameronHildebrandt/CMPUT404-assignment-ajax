@@ -309,7 +309,7 @@ mouse = (function() {
 //XXX: TODO Make these prettier!
 
 // new user joining, clear board and start up their refresh rate
-sendJSONXMLHTTPRequest("/clear", {}, res => {
+sendJSONXMLHTTPRequest("/clearMU", {}, res => {
     usrNum = res["usrNum"]
 });
 

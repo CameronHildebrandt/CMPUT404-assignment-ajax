@@ -140,13 +140,26 @@ def get_entity(entity):
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
+    myWorld.clear()
+    res = {}
+    return jsonify(res), 200, {'Content-Type': 'application/json'}
+
+
+
+# my multi-user thing also violates srp and uses clear to communicate user numbers.
+# the app uses its own clear method to preserve the functionality of the normal one
+@app.route("/clearMU", methods=['POST','GET'])
+def clearMU():
+    '''Clear the world out!'''
     # blatant violation of srp: this also creates the new user - every time someone joins nuke the canvas
     myWorld.userNum += 1
-    print("welcome, user " + str(myWorld.userNum) + "!")
+    print("Welcome, user " + str(myWorld.userNum) + "!")
     myWorld.clear()
-    res = {"usrNum": myWorld.userNum, "world": {}}
+    res = {"usrNum": myWorld.userNum}
     return jsonify(res), 200, {'Content-Type': 'application/json'}
+
+
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
-    # app.run(host="172.31.104.111", port=8000) # connect using other computers on network
+    # app.run(host="172.20.10.3", port=8000) # connect using other computers on network
