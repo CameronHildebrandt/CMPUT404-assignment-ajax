@@ -50,21 +50,51 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
 
 
     params = JSON.stringify(objects)
+
     xhr.open('POST', url, true);
 
     // Send the proper header information along with the request
     xhr.setRequestHeader('Content-type', 'application/json');
-    // set accept headers
+    xhr.setRequestHeader('Accept', 'application/json');
 
     xhr.onreadystatechange = function() { // Call a function when the state changes.
         if(xhr.readyState == 4 && xhr.status == 200) {
-            // alert(xhr.responseText);
             callback(JSON.parse(xhr.responseText));
         }
     }
     xhr.send(params);
+}
 
-    // console.log(world);
+function getJSONXMLHTTPRequest(url, objects, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState==4) {
+            try {
+                if (xhr.status==200) {
+                    callback(JSON.parse(xhr.responseText))
+                }
+            } 
+            catch(e) {
+                alert('Error: ' + e.name);
+            }
+        }
+    };
+
+
+    params = JSON.stringify(objects)
+
+    xhr.open('GET', url, true);
+
+    // Send the proper header information along with the request
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.setRequestHeader('Accept', 'application/json');
+
+    xhr.onreadystatechange = function() { // Call a function when the state changes.
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            callback(JSON.parse(xhr.responseText));
+        }
+    }
+    xhr.send(params);
 }
 
 
@@ -277,6 +307,7 @@ mouse = (function() {
 
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
+
 // new user joining, clear board and start up their refresh rate
 sendJSONXMLHTTPRequest("/clear", {}, res => {
     usrNum = res["usrNum"]
@@ -287,7 +318,7 @@ function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
     drawFrame();
     drawNextFrame();
-    sendJSONXMLHTTPRequest("/world", {}, res => {
+    getJSONXMLHTTPRequest("/worldMU", {}, res => {
         if(res[usrNum.toString()] !== undefined) {
             world = res[usrNum.toString()];
         }
@@ -298,7 +329,7 @@ function update() {
     })
 }
 
-// init handshake done, init
+// init handshake
 setTimeout(() => {
     // 30 frames per second
     setInterval( update, 1000/30.0);
