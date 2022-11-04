@@ -22,7 +22,7 @@
 
 
 import flask
-from flask import Flask, request
+from flask import Flask, request, redirect, jsonify
 import json
 app = Flask(__name__)
 app.debug = True
@@ -74,17 +74,22 @@ def flask_post_json():
 @app.route("/")
 def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
-    return None
+    return redirect('/static/index.html', code=302)
 
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
+    myWorld.update("usr1", entity, request.json)
+    # print(request.json)
+    # print(myWorld.world())
     '''update the entities via this interface'''
-    return None
+
+    res = {}
+
+    return jsonify(res), 200, {'Content-Type': 'application/json'}
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
-    '''you should probably return the world here'''
-    return None
+    return jsonify(myWorld.world()), 200, {'Content-Type': 'application/json'}
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
@@ -97,4 +102,6 @@ def clear():
     return None
 
 if __name__ == "__main__":
-    app.run()
+    # app.run() # uncomment for submit
+    app.run(port=8000) # mac uses port 5000 for airplay
+    # app.run(host="192.168.1.83", port=8000) # connect using other computers on network
