@@ -27,8 +27,6 @@ import json
 app = Flask(__name__)
 app.debug = True
 
-usrNum = 0
-
 # An example world
 # {
 #    'a':{'x':1, 'y':2},
@@ -38,6 +36,7 @@ usrNum = 0
 class World:
     def __init__(self):
         self.clear()
+        self.userNum = 0
         
     def update(self, entity, key, value):
         entry = self.space.get(entity,dict())
@@ -78,30 +77,39 @@ def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
     return redirect('/static/index.html', code=302)
 
+
+
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
-    myWorld.update(str(usrNum), entity, request.json)
-    # print(request.json)
-    # print(myWorld.world())
-    '''update the entities via this interface'''
+    myWorld.update(str(request.json["usrNum"]), entity, request.json["data"])
 
     res = {}
-
     return jsonify(res), 200, {'Content-Type': 'application/json'}
+
+
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     return jsonify(myWorld.world()), 200, {'Content-Type': 'application/json'}
+
+
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
     return None
 
+
+
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
-    return None
+    # blatant violation of srp: this also creates the new user - every time someone joins nuke the canvas
+    myWorld.userNum += 1
+    print("welcome, user " + str(myWorld.userNum) + "!")
+    myWorld.clear()
+    res = {"usrNum": myWorld.userNum}
+    return jsonify(res), 200, {'Content-Type': 'application/json'}
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)

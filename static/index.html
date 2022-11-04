@@ -30,6 +30,7 @@ var host = window.location.host;
 var context = canvas.getContext("2d");
 var W = canvas.width  = window.innerWidth-6;
 var H = canvas.height = window.innerHeight-50;
+var usrNum = 0;
 
 
 function sendJSONXMLHTTPRequest(url, objects, callback) {
@@ -75,6 +76,7 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
 
 
 world = {};
+otherUsersWorlds = {};
 
 //XXX: TODO Make this prettier!
 // will be made prettier by making it draw gradient - reset on click, increment colour as draw
@@ -114,10 +116,30 @@ function clearFrame() {
 // This actually draws the frame
 function renderFrame() {
     clearFrame();
+    // for (var w in otherUsersWorlds) {
+    //     for (var key in w) {
+    //         var entity = w[key];
+    //         drawCircle(context,prepEntity(entity));
+    //     }
+    // }
+
+    clearFrame();
     for (var key in world) {
         var entity = world[key];
         drawCircle(context,prepEntity(entity));
     }
+    
+    // console.log('================================');
+    for (var w in otherUsersWorlds) {
+        if(w.toString() !== usrNum.toString()) {
+            console.log(otherUsersWorlds[w])
+            for (var key in otherUsersWorlds[w]) {
+                var entity = otherUsersWorlds[w][key];
+                drawCircle(context,prepEntity(entity));
+            }
+        }
+    }
+    // console.log('================================');
 }
 
 var drawNext = true;
@@ -160,7 +182,11 @@ function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
-    sendJSONXMLHTTPRequest("/entity/" + entity, data, () => {});
+    send = {
+        "data": data,
+        "usrNum": usrNum,
+    }
+    sendJSONXMLHTTPRequest("/entity/" + entity, send, () => {});
 
 }
 
@@ -269,16 +295,9 @@ mouse = (function() {
 
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
-mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'purple'});
-});
-
-mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'purple','radius':25});
-});
-
-mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'purple','radius':10});
+// new user joining, clear board and start up their refresh rate
+sendJSONXMLHTTPRequest("/clear", {}, res => {
+    usrNum = res["usrNum"]
 });
 
 
@@ -287,14 +306,38 @@ function update() {
     drawFrame();
     drawNextFrame();
     sendJSONXMLHTTPRequest("/world", {}, res => {
-        world = res["0"];
-        // load the other worlds too
-        // figure out how to draw all of them
+        if(res[usrNum.toString()] !== undefined) {
+            world = res[usrNum.toString()];
+        }
+        if(res !== undefined) {
+            // console.log(res)
+            otherUsersWorlds = res
+        }
     })
 }
 
-// 30 frames per second
-setTimeout(() => {setInterval( update, 1000/30.0)}, 500);
+// init handshake done, init
+setTimeout(() => {
+    // 30 frames per second
+    setInterval( update, 1000/30.0);
+
+    console.log("welcome user", usrNum);
+
+
+    coloursArr = ['purple', 'blue', 'red', 'pink', 'yellow', 'orange', 'green'];
+
+    mouse.mousedowners.push(function(x,y,clicked,e) {
+        addEntityWithoutName({'x':x,'y':y,'colour':coloursArr[usrNum%7]});
+    });
+
+    mouse.mouseuppers.push(function(x,y,clicked,e) {
+        addEntityWithoutName({'x':x,'y':y,'colour':coloursArr[usrNum%7],'radius':25});
+    });
+
+    mouse.mousedraggers.push(function(x,y,clicked,e) {
+        addEntityWithoutName({'x':x,'y':y,'colour':coloursArr[usrNum%7],'radius':10});
+    });
+}, 1);
 
 
 
