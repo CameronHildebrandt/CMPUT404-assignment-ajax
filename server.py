@@ -27,6 +27,8 @@ import json
 app = Flask(__name__)
 app.debug = True
 
+usrNum = 0
+
 # An example world
 # {
 #    'a':{'x':1, 'y':2},
@@ -78,7 +80,7 @@ def hello():
 
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
-    myWorld.update("usr1", entity, request.json)
+    myWorld.update(str(usrNum), entity, request.json)
     # print(request.json)
     # print(myWorld.world())
     '''update the entities via this interface'''
@@ -102,6 +104,4 @@ def clear():
     return None
 
 if __name__ == "__main__":
-    # app.run() # uncomment for submit
-    app.run(port=8000) # mac uses port 5000 for airplay
-    # app.run(host="192.168.1.83", port=8000) # connect using other computers on network
+    app.run(port=8000, debug=True)

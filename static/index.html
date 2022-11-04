@@ -287,14 +287,14 @@ function update() {
     drawFrame();
     drawNextFrame();
     sendJSONXMLHTTPRequest("/world", {}, res => {
-        world = res["usr1"];
+        world = res["0"];
         // load the other worlds too
         // figure out how to draw all of them
     })
 }
 
 // 30 frames per second
-setInterval( update, 1000/30.0);
+setTimeout(() => {setInterval( update, 1000/30.0)}, 500);
 
 
 
